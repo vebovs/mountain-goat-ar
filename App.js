@@ -8,6 +8,7 @@ import {
 } from '@viro-community/react-viro';
 
 import Location from './components/Location';
+import Map from './components/Map';
 
 const HelloWorldSceneAR = () => {
   const [positions, setPositions] = useState([]);
@@ -97,6 +98,7 @@ const HelloWorldSceneAR = () => {
   );
 };
 
+/*
 export default () => {
   return (
     <ViroARSceneNavigator
@@ -108,11 +110,16 @@ export default () => {
     />
   );
 };
+*/
 
 /*
 export default () => {
   return <Location />;
 };*/
+
+export default () => {
+  return <Map />;
+};
 
 var styles = StyleSheet.create({
   f1: { flex: 1 },
