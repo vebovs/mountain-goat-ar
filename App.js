@@ -1,11 +1,13 @@
-import React, {useState} from 'react';
-import {StyleSheet} from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet } from 'react-native';
 import {
   ViroARScene,
   ViroText,
   ViroTrackingStateConstants,
   ViroARSceneNavigator,
 } from '@viro-community/react-viro';
+
+import Location from './components/Location';
 
 const HelloWorldSceneAR = () => {
   const [text, setText] = useState('Initializing AR...');
@@ -31,6 +33,7 @@ const HelloWorldSceneAR = () => {
   );
 };
 
+/*
 export default () => {
   return (
     <ViroARSceneNavigator
@@ -41,10 +44,14 @@ export default () => {
       style={styles.f1}
     />
   );
+};*/
+
+export default () => {
+  return <Location />;
 };
 
 var styles = StyleSheet.create({
-  f1: {flex: 1},
+  f1: { flex: 1 },
   helloWorldTextStyle: {
     fontFamily: 'Arial',
     fontSize: 30,
