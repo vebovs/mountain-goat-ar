@@ -1,21 +1,18 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Alert,
-  Button,
-  Linking,
   PermissionsAndroid,
   Platform,
-  ScrollView,
-  StyleSheet,
-  Switch,
   Text,
   ToastAndroid,
   View,
 } from 'react-native';
 import Geolocation from 'react-native-geolocation-service';
+import CompassHeading from 'react-native-compass-heading';
 
 function Location() {
   const [position, setPosition] = useState();
+  const [compassHeading, setCompassHeading] = useState(0);
 
   const hasLocationPermission = async () => {
     if (Platform.OS === 'ios') {
@@ -68,7 +65,7 @@ function Location() {
     Geolocation.getCurrentPosition(
       (position) => {
         setPosition(position);
-        console.log(position);
+        //console.log(position);
       },
       (error) => {
         Alert.alert(`Code ${error.code}`, error.message);
@@ -95,9 +92,25 @@ function Location() {
     getLocation();
   }, [getLocation]);
 
+  useEffect(() => {
+    const degree_update_rate = 3;
+
+    // accuracy on android will be hardcoded to 1
+    // since the value is not available.
+    // For iOS, it is in degrees
+    CompassHeading.start(degree_update_rate, ({ heading, accuracy }) => {
+      console.log(`Heading: ${heading}, Accuracy: ${accuracy}`);
+      setCompassHeading(heading);
+    });
+
+    return () => {
+      CompassHeading.stop();
+    };
+  }, []);
+
   return (
     <View>
-      <Text>Hello World</Text>
+      <Text>Mountain Goat AR!</Text>
       <Text>
         {'Latitude: ' +
           (position?.coords ? position.coords.latitude : 'Nothing')}
@@ -106,6 +119,7 @@ function Location() {
         {'Latitude: ' +
           (position?.coords ? position.coords.longitude : 'Nothing')}
       </Text>
+      <Text>{'Heading: ' + compassHeading}</Text>
     </View>
   );
 }
