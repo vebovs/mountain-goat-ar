@@ -100,7 +100,7 @@ function Location() {
     // For iOS, it is in degrees
     CompassHeading.start(degree_update_rate, ({ heading, accuracy }) => {
       console.log(`Heading: ${heading}, Accuracy: ${accuracy}`);
-      setCompassHeading(heading);
+      //setCompassHeading(heading);
     });
 
     return () => {
