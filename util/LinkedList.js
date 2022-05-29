@@ -24,10 +24,14 @@ module.exports = class LinkedList {
 
   printList() {
     let currNode = this.headNode;
-    console.log('LinkedList Print:');
+    console.log('LinkedList Printout:');
+    let i = 0;
     while (currNode !== null) {
-      console.log(`Latitude: ${currNode.lat} Longitude: ${currNode.lng}`);
+      console.log(
+        `Node: ${i}, Latitude: ${currNode.lat} Longitude: ${currNode.lng}`,
+      );
       currNode = currNode.nextNode;
+      i++;
     }
   }
 };
