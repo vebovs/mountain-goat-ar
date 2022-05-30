@@ -32,8 +32,6 @@ function Map() {
       nodes[nodes.length - 1].nextNode = node;
       setNodes((prevNodes) => [...prevNodes, node]);
     }
-
-    if (nodes.length === 4) setNodes([]);
   };
 
   const undoNode = () => {
@@ -57,7 +55,7 @@ function Map() {
             <Circle
               key={n.lat + n.lng}
               center={{ latitude: n.lat, longitude: n.lng }}
-              radius={10}
+              radius={6}
               fillColor="blue"
             />
             {n.nextNode && (
@@ -79,6 +77,7 @@ function Map() {
         size={40}
         style={styles.iconButton}
         onPress={undoNode}
+        disabled={nodes.length > 0 ? false : true}
       />
     </>
   );
