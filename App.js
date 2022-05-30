@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import {
   ViroARScene,
   ViroTrackingStateConstants,
@@ -7,10 +8,9 @@ import {
   ViroBox,
 } from '@viro-community/react-viro';
 
-import Location from './components/Location';
 import Map from './components/Map';
 
-const HelloWorldSceneAR = () => {
+const PathSceneAR = () => {
   const [positions, setPositions] = useState([]);
 
   const lineString = [
@@ -98,36 +98,35 @@ const HelloWorldSceneAR = () => {
   );
 };
 
-/*
 export default () => {
+  const [screenToggle, setScreenToggle] = useState(false);
+
   return (
-    <ViroARSceneNavigator
-      autofocus={true}
-      initialScene={{
-        scene: HelloWorldSceneAR,
-      }}
-      style={styles.f1}
-    />
+    <>
+      {screenToggle && <Map />}
+      {!screenToggle && (
+        <ViroARSceneNavigator
+          autofocus={true}
+          initialScene={{
+            scene: PathSceneAR,
+          }}
+          style={styles.f1}
+        />
+      )}
+      <Icon.Button
+        name={screenToggle ? 'switch-right' : 'switch-left'}
+        size={40}
+        style={styles.iconButton}
+        onPress={() => setScreenToggle(!screenToggle)}
+      />
+    </>
   );
-};
-*/
-
-/*
-export default () => {
-  return <Location />;
-};*/
-
-export default () => {
-  return <Map />;
 };
 
 var styles = StyleSheet.create({
   f1: { flex: 1 },
-  helloWorldTextStyle: {
-    fontFamily: 'Arial',
-    fontSize: 30,
-    color: '#ffffff',
-    textAlignVertical: 'center',
-    textAlign: 'center',
+
+  iconButton: {
+    justifyContent: 'center',
   },
 });
