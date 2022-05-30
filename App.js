@@ -10,13 +10,8 @@ import {
 
 import Map from './components/Map';
 
-const PathSceneAR = () => {
+const PathSceneAR = (props) => {
   const [positions, setPositions] = useState([]);
-
-  const lineString = [
-    [63.410603, 10.41338],
-    [63.410695, 10.413364],
-  ];
 
   const latLongToMerc = (latDeg, longDeg) => {
     // From: https://gist.github.com/scaraveos/5409402
@@ -60,10 +55,10 @@ const PathSceneAR = () => {
   function onInitialized(state, reason) {
     console.log('guncelleme', state, reason);
     if (state === ViroTrackingStateConstants.TRACKING_NORMAL) {
-      lineString.map((point) =>
+      props.sceneNavigator.viroAppProps.nodes.map((point) =>
         setPositions((prevPositions) => [
           ...prevPositions,
-          transformGpsToAR(point[0], point[1], 63.410601, 10.413305),
+          transformGpsToAR(point.lat, point.lng, 63.410601, 10.413305),
         ]),
       );
     } else if (state === ViroTrackingStateConstants.TRACKING_NONE) {
@@ -104,13 +99,14 @@ export default () => {
 
   return (
     <>
-      {screenToggle && <Map nodes={nodes} setNodes={setNodes} />}
-      {!screenToggle && (
+      {!screenToggle && <Map nodes={nodes} setNodes={setNodes} />}
+      {screenToggle && (
         <ViroARSceneNavigator
           autofocus={true}
           initialScene={{
             scene: PathSceneAR,
           }}
+          viroAppProps={{ nodes: nodes }}
           style={styles.f1}
         />
       )}
@@ -124,9 +120,8 @@ export default () => {
   );
 };
 
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
   f1: { flex: 1 },
-
   iconButton: {
     justifyContent: 'center',
   },
