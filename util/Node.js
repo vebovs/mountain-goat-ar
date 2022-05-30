@@ -1,6 +1,6 @@
 module.exports = class Node {
-  constructor(lat, lng) {
-    this.nextNode = null;
+  constructor(nextNode, lat, lng) {
+    this.nextNode = nextNode;
     this.lat = lat;
     this.lng = lng;
   }

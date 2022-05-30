@@ -1,11 +1,12 @@
-import React, { useEffect } from 'react';
-import { StyleSheet } from 'react-native';
-import MapView, { Polyline } from 'react-native-maps';
+import React, { useState, useEffect, useRef } from 'react';
+import { StyleSheet, Text, View, Button } from 'react-native';
+import MapView, { Polyline, Circle } from 'react-native-maps';
 
 import Node from '../util/Node';
-import LinkedList from '../util/LinkedList';
 
 function Map() {
+  const [nodes, setNodes] = useState([]);
+
   const region = {
     latitude: 63.410601,
     longitude: 10.413305,
@@ -14,41 +15,56 @@ function Map() {
   };
 
   const selectedPointHandler = (event) => {
-    console.log(event.nativeEvent.coordinate);
+    if (nodes.length === 0) {
+      const node = new Node(
+        null,
+        event.nativeEvent.coordinate.latitude,
+        event.nativeEvent.coordinate.longitude,
+      );
+      setNodes((prevNodes) => [...prevNodes, node]);
+    } else {
+      const node = new Node(
+        null,
+        event.nativeEvent.coordinate.latitude,
+        event.nativeEvent.coordinate.longitude,
+      );
+      nodes[nodes.length - 1].nextNode = node;
+      setNodes((prevNodes) => [...prevNodes, node]);
+    }
+
+    if (nodes.length === 10) setNodes([]);
   };
 
-  useEffect(() => {
-    const node1 = new Node(63.411355, 10.412751);
-    const node2 = new Node(63.409668, 10.413062);
-    const node3 = new Node(63.410601, 10.413305);
-    const node4 = new Node(1, 1);
-
-    const linkedList = new LinkedList(node1);
-
-    linkedList.appendNode(node2);
-    linkedList.appendNode(node3);
-    linkedList.appendNode(node4);
-    linkedList.printList();
-
-    linkedList.removeLast();
-    linkedList.printList();
-  }, []);
-
   return (
-    <MapView
-      style={styles.map}
-      initialRegion={region}
-      onPress={selectedPointHandler}
-    >
-      <Polyline
-        coordinates={[
-          { latitude: 63.411355, longitude: 10.412751 },
-          { latitude: 63.409668, longitude: 10.413062 },
-        ]}
-        strokeColor="red"
-        strokeWidth={6}
-      />
-    </MapView>
+    <>
+      <MapView
+        style={styles.map}
+        initialRegion={region}
+        onPress={selectedPointHandler}
+      >
+        {nodes.map((n) => (
+          <>
+            <Circle
+              key={n.lat + n.lng}
+              center={{ latitude: n.lat, longitude: n.lng }}
+              radius={10}
+              fillColor="blue"
+            />
+            {n.nextNode && (
+              <Polyline
+                key={n.lng + ':' + n.lat}
+                coordinates={[
+                  { latitude: n.lat, longitude: n.lng },
+                  { latitude: n.nextNode.lat, longitude: n.nextNode.lng },
+                ]}
+                strokeColor="red"
+                strokeWidth={6}
+              />
+            )}
+          </>
+        ))}
+      </MapView>
+    </>
   );
 }
 
