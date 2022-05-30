@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { StyleSheet, Text, View, Button } from 'react-native';
+import React, { useState } from 'react';
+import { StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import MapView, { Polyline, Circle } from 'react-native-maps';
 
 import Node from '../util/Node';
@@ -32,7 +33,16 @@ function Map() {
       setNodes((prevNodes) => [...prevNodes, node]);
     }
 
-    if (nodes.length === 10) setNodes([]);
+    if (nodes.length === 4) setNodes([]);
+  };
+
+  const undoNode = () => {
+    if (nodes.length > 0) {
+      const removedLast = nodes.slice(0, nodes.length - 1);
+      if (removedLast.length > 0)
+        removedLast[removedLast.length - 1].nextNode = null;
+      setNodes(removedLast);
+    }
   };
 
   return (
@@ -64,6 +74,12 @@ function Map() {
           </>
         ))}
       </MapView>
+      <Icon.Button
+        name="undo"
+        size={40}
+        style={styles.iconButton}
+        onPress={undoNode}
+      />
     </>
   );
 }
@@ -71,6 +87,9 @@ function Map() {
 const styles = StyleSheet.create({
   map: {
     flex: 1,
+  },
+  iconButton: {
+    justifyContent: 'center',
   },
 });
 
