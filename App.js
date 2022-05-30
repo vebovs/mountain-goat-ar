@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/MaterialIcons';
 import {
   ViroARScene,
   ViroTrackingStateConstants,
@@ -7,16 +8,10 @@ import {
   ViroBox,
 } from '@viro-community/react-viro';
 
-import Location from './components/Location';
 import Map from './components/Map';
 
-const HelloWorldSceneAR = () => {
+const PathSceneAR = (props) => {
   const [positions, setPositions] = useState([]);
-
-  const lineString = [
-    [63.410603, 10.41338],
-    [63.410695, 10.413364],
-  ];
 
   const latLongToMerc = (latDeg, longDeg) => {
     // From: https://gist.github.com/scaraveos/5409402
@@ -60,10 +55,10 @@ const HelloWorldSceneAR = () => {
   function onInitialized(state, reason) {
     console.log('guncelleme', state, reason);
     if (state === ViroTrackingStateConstants.TRACKING_NORMAL) {
-      lineString.map((point) =>
+      props.sceneNavigator.viroAppProps.nodes.map((point) =>
         setPositions((prevPositions) => [
           ...prevPositions,
-          transformGpsToAR(point[0], point[1], 63.410601, 10.413305),
+          transformGpsToAR(point.lat, point.lng, 63.410601, 10.413305),
         ]),
       );
     } else if (state === ViroTrackingStateConstants.TRACKING_NONE) {
@@ -98,36 +93,36 @@ const HelloWorldSceneAR = () => {
   );
 };
 
-/*
 export default () => {
+  const [screenToggle, setScreenToggle] = useState(false);
+  const [nodes, setNodes] = useState([]);
+
   return (
-    <ViroARSceneNavigator
-      autofocus={true}
-      initialScene={{
-        scene: HelloWorldSceneAR,
-      }}
-      style={styles.f1}
-    />
+    <>
+      {!screenToggle && <Map nodes={nodes} setNodes={setNodes} />}
+      {screenToggle && (
+        <ViroARSceneNavigator
+          autofocus={true}
+          initialScene={{
+            scene: PathSceneAR,
+          }}
+          viroAppProps={{ nodes: nodes }}
+          style={styles.f1}
+        />
+      )}
+      <Icon.Button
+        name={screenToggle ? 'switch-right' : 'switch-left'}
+        size={40}
+        style={styles.iconButton}
+        onPress={() => setScreenToggle(!screenToggle)}
+      />
+    </>
   );
 };
-*/
 
-/*
-export default () => {
-  return <Location />;
-};*/
-
-export default () => {
-  return <Map />;
-};
-
-var styles = StyleSheet.create({
+const styles = StyleSheet.create({
   f1: { flex: 1 },
-  helloWorldTextStyle: {
-    fontFamily: 'Arial',
-    fontSize: 30,
-    color: '#ffffff',
-    textAlignVertical: 'center',
-    textAlign: 'center',
+  iconButton: {
+    justifyContent: 'center',
   },
 });
