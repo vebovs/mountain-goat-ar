@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MapView, { Polyline, Circle } from 'react-native-maps';
 
 import Node from '../util/Node';
 
-function Map() {
-  const [nodes, setNodes] = useState([]);
-
+function Map({ nodes, setNodes }) {
   const region = {
     latitude: 63.410601,
     longitude: 10.413305,

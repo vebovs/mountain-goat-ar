@@ -100,10 +100,11 @@ const PathSceneAR = () => {
 
 export default () => {
   const [screenToggle, setScreenToggle] = useState(false);
+  const [nodes, setNodes] = useState([]);
 
   return (
     <>
-      {screenToggle && <Map />}
+      {screenToggle && <Map nodes={nodes} setNodes={setNodes} />}
       {!screenToggle && (
         <ViroARSceneNavigator
           autofocus={true}
