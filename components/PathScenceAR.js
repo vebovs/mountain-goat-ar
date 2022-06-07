@@ -108,7 +108,7 @@ const PathSceneAR = (props) => {
 
   useEffect(() => {
     getLocation();
-  }, [getLocation]);
+  }, []);
 
   if (!userLocation) return null;
 
