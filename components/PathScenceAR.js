@@ -107,7 +107,9 @@ const PathSceneAR = (props) => {
   }
 
   useEffect(() => {
+    const controller = new AbortController();
     getLocation();
+    return () => controller.abort();
   }, []);
 
   if (!userLocation) return null;
@@ -116,7 +118,7 @@ const PathSceneAR = (props) => {
     <ViroARScene onTrackingUpdated={onInitialized}>
       {positions.map((pos) => (
         <ViroBox
-          key={pos.x}
+          key={pos.x + ':' + pos.z}
           height={1}
           length={1}
           width={1}

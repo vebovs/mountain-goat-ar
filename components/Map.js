@@ -51,7 +51,7 @@ function Map({ nodes, setNodes }) {
         {nodes.map((n) => (
           <>
             <Circle
-              key={n.lat + n.lng}
+              key={n.lat + ':' + n.lng}
               center={{ latitude: n.lat, longitude: n.lng }}
               radius={6}
               fillColor="blue"
