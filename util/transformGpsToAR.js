@@ -9,7 +9,7 @@ const latLongToMerc = (latDeg, longDeg) => {
   return { x: xmeters, y: ymeters };
 };
 
-const transformGpsToAR = (latObj, longObj, latMobile, longMobile) => {
+const transformGpsToAR = (latObj, longObj, latMobile, longMobile, degree) => {
   const deviceObjPoint = latLongToMerc(latObj, longObj); // see previous post for code.
   const mobilePoint = latLongToMerc(latMobile, longMobile); // see previous post for code.
 
@@ -17,7 +17,7 @@ const transformGpsToAR = (latObj, longObj, latMobile, longMobile) => {
   const objDeltaX = deviceObjPoint.x - mobilePoint.x;
 
   //if (isAndroid) {
-  let degree = 90; // not using real compass yet.
+  //let degree = 90; // not using real compass yet.
   let angleRadian = (degree * Math.PI) / 180;
 
   console.log('Using degree => ', degree);

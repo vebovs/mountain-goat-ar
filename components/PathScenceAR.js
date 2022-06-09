@@ -11,12 +11,14 @@ import {
   ViroTrackingStateConstants,
   ViroBox,
 } from '@viro-community/react-viro';
+import CompassHeading from 'react-native-compass-heading';
 
 import transformGpsToAR from '../util/transformGpsToAR';
 
 const PathSceneAR = (props) => {
   const [userLocation, setUserLocation] = useState();
   const [positions, setPositions] = useState([]);
+  const [compassHeading, setCompassHeading] = useState(0);
 
   const hasLocationPermission = async () => {
     if (Platform.OS === 'android' && Platform.Version < 23) {
@@ -64,7 +66,7 @@ const PathSceneAR = (props) => {
     Geolocation.getCurrentPosition(
       (position) => {
         setUserLocation(position);
-        //console.log(position);
+        console.log(position);
       },
       (error) => {
         Alert.alert(`Code ${error.code}`, error.message);
@@ -89,6 +91,7 @@ const PathSceneAR = (props) => {
 
   function onInitialized(state, reason) {
     console.log('guncelleme', state, reason);
+    setPositions([]);
     if (state === ViroTrackingStateConstants.TRACKING_NORMAL) {
       props.sceneNavigator.viroAppProps.nodes.map((point) =>
         setPositions((prevPositions) => [
@@ -98,6 +101,7 @@ const PathSceneAR = (props) => {
             point.lng,
             userLocation.coords.latitude,
             userLocation.coords.longitude,
+            compassHeading,
           ),
         ]),
       );
@@ -112,7 +116,26 @@ const PathSceneAR = (props) => {
     return () => controller.abort();
   }, []);
 
-  if (!userLocation) return null;
+  useEffect(() => {
+    const degree_update_rate = 3;
+
+    // accuracy on android will be hardcoded to 1
+    // since the value is not available.
+    // For iOS, it is in degrees
+    CompassHeading.start(degree_update_rate, ({ heading, accuracy }) => {
+      if (
+        heading >= compassHeading + degree_update_rate ||
+        heading <= compassHeading - degree_update_rate
+      )
+        setCompassHeading(heading);
+    });
+
+    return () => {
+      CompassHeading.stop();
+    };
+  }, []);
+
+  if (!userLocation || !compassHeading) return null;
 
   return (
     <ViroARScene onTrackingUpdated={onInitialized}>
