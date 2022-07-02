@@ -1,59 +1,108 @@
 import React, { useState, useEffect } from 'react';
 import {
+  Alert,
+  PermissionsAndroid,
+  Platform,
+  ToastAndroid,
+} from 'react-native';
+import Geolocation from 'react-native-geolocation-service';
+import {
   ViroARScene,
   ViroTrackingStateConstants,
   ViroBox,
 } from '@viro-community/react-viro';
+import CompassHeading from 'react-native-compass-heading';
+
+import transformGpsToAR from '../util/transformGpsToAR';
 
 const PathSceneAR = (props) => {
+  const [userLocation, setUserLocation] = useState();
   const [positions, setPositions] = useState([]);
+  const [compassHeading, setCompassHeading] = useState(0);
 
-  const latLongToMerc = (latDeg, longDeg) => {
-    // From: https://gist.github.com/scaraveos/5409402
-    const longRad = (longDeg / 180.0) * Math.PI;
-    const latRad = (latDeg / 180.0) * Math.PI;
-    const smA = 6378137.0;
-    const xmeters = smA * longRad;
-    const ymeters = smA * Math.log((Math.sin(latRad) + 1) / Math.cos(latRad));
+  const hasLocationPermission = async () => {
+    if (Platform.OS === 'android' && Platform.Version < 23) {
+      return true;
+    }
 
-    return { x: xmeters, y: ymeters };
+    const hasPermission = await PermissionsAndroid.check(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    );
+
+    if (hasPermission) {
+      return true;
+    }
+
+    const status = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    );
+
+    if (status === PermissionsAndroid.RESULTS.GRANTED) {
+      return true;
+    }
+
+    if (status === PermissionsAndroid.RESULTS.DENIED) {
+      ToastAndroid.show(
+        'Location permission denied by user.',
+        ToastAndroid.LONG,
+      );
+    } else if (status === PermissionsAndroid.RESULTS.NEVER_ASK_AGAIN) {
+      ToastAndroid.show(
+        'Location permission revoked by user.',
+        ToastAndroid.LONG,
+      );
+    }
+
+    return false;
   };
 
-  const transformGpsToAR = (latObj, longObj, latMobile, longMobile) => {
-    const deviceObjPoint = latLongToMerc(latObj, longObj); // see previous post for code.
-    const mobilePoint = latLongToMerc(latMobile, longMobile); // see previous post for code.
+  const getLocation = async () => {
+    const hasPermission = await hasLocationPermission();
 
-    const objDeltaY = deviceObjPoint.y - mobilePoint.y;
-    const objDeltaX = deviceObjPoint.x - mobilePoint.x;
+    if (!hasPermission) {
+      return;
+    }
 
-    //if (isAndroid) {
-    let degree = 90; // not using real compass yet.
-    let angleRadian = (degree * Math.PI) / 180;
-
-    console.log('Using degree => ', degree);
-    console.log('Angle radian => ', angleRadian);
-
-    let newObjX =
-      objDeltaX * Math.cos(angleRadian) - objDeltaY * Math.sin(angleRadian);
-    let newObjY =
-      objDeltaX * Math.sin(angleRadian) + objDeltaY * Math.cos(angleRadian);
-
-    console.log('old delta => ', { x: objDeltaX, z: -objDeltaY });
-    console.log('new delta => ', { x: newObjX, z: -newObjY });
-
-    return { x: newObjX, z: -newObjY };
-    //}
-
-    //return { x: objDeltaX, z: -objDeltaY };
+    Geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation(position);
+        console.log(position);
+      },
+      (error) => {
+        Alert.alert(`Code ${error.code}`, error.message);
+        setUserLocation(null);
+        console.log(error);
+      },
+      {
+        accuracy: {
+          android: 'high',
+          ios: 'best',
+        },
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 10000,
+        distanceFilter: 0,
+        forceRequestLocation: true,
+        forceLocationManager: false,
+        showLocationDialog: true,
+      },
+    );
   };
 
   function onInitialized(state, reason) {
     console.log('guncelleme', state, reason);
+    setPositions([]);
     if (state === ViroTrackingStateConstants.TRACKING_NORMAL) {
       props.sceneNavigator.viroAppProps.nodes.map((point) =>
         setPositions((prevPositions) => [
           ...prevPositions,
-          transformGpsToAR(point.lat, point.lng, 63.410601, 10.413305),
+          transformGpsToAR(
+            point.lat,
+            point.lng,
+            userLocation.coords.latitude,
+            userLocation.coords.longitude,
+            compassHeading,
+          ),
         ]),
       );
     } else if (state === ViroTrackingStateConstants.TRACKING_NONE) {
@@ -61,22 +110,38 @@ const PathSceneAR = (props) => {
     }
   }
 
-  /*
-    useEffect(() => {
-      
-        Window: 63.410601, 10.413305
-        Point A: 63.410603, 10.41338
-        Point B: 63.410695, 10.413364
-      
-      setPosition(transformGpsToAR(63.410603, 10.41338, 63.410601, 10.413305));
-    }, []);
-    */
+  useEffect(() => {
+    const controller = new AbortController();
+    getLocation();
+    return () => controller.abort();
+  }, []);
+
+  useEffect(() => {
+    const degree_update_rate = 3;
+
+    // accuracy on android will be hardcoded to 1
+    // since the value is not available.
+    // For iOS, it is in degrees
+    CompassHeading.start(degree_update_rate, ({ heading, accuracy }) => {
+      if (
+        heading >= compassHeading + degree_update_rate ||
+        heading <= compassHeading - degree_update_rate
+      )
+        setCompassHeading(heading);
+    });
+
+    return () => {
+      CompassHeading.stop();
+    };
+  }, []);
+
+  if (!userLocation || !compassHeading) return null;
 
   return (
     <ViroARScene onTrackingUpdated={onInitialized}>
       {positions.map((pos) => (
         <ViroBox
-          key={pos.x}
+          key={pos.x + ':' + pos.z}
           height={1}
           length={1}
           width={1}

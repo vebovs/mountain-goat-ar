@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import { StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MapView, { Polyline, Circle } from 'react-native-maps';
@@ -49,9 +49,9 @@ function Map({ nodes, setNodes }) {
         onPress={selectedPointHandler}
       >
         {nodes.map((n) => (
-          <>
+          <Fragment key={n.lat + n.lng}>
             <Circle
-              key={n.lat + n.lng}
+              key={n.lat + ':' + n.lng}
               center={{ latitude: n.lat, longitude: n.lng }}
               radius={6}
               fillColor="blue"
@@ -67,7 +67,7 @@ function Map({ nodes, setNodes }) {
                 strokeWidth={6}
               />
             )}
-          </>
+          </Fragment>
         ))}
       </MapView>
       <Icon.Button
