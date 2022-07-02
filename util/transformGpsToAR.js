@@ -9,43 +9,25 @@ const latLongToMerc = (latDeg, longDeg) => {
   return { x: xmeters, y: ymeters };
 };
 
+const degrees_to_radians = (degrees) => {
+  return degrees * (Math.PI / 180);
+};
+
 const transformGpsToAR = (latObj, longObj, latMobile, longMobile, degree) => {
-  const deviceObjPoint = latLongToMerc(latObj, longObj); // see previous post for code.
-  const mobilePoint = latLongToMerc(latMobile, longMobile); // see previous post for code.
+  const deviceObjPoint = latLongToMerc(latObj, longObj);
+  const mobilePoint = latLongToMerc(latMobile, longMobile);
 
   const objDeltaY = deviceObjPoint.y - mobilePoint.y;
   const objDeltaX = deviceObjPoint.x - mobilePoint.x;
 
-  //if (isAndroid) {
-  //let degree = 90; // not using real compass yet.
-  let angleRadian = (degree * Math.PI) / 180;
+  const theta = Math.atan2(objDeltaY, objDeltaX) - Math.PI / 2;
+  const r = Math.sqrt(Math.pow(objDeltaX, 2) + Math.pow(objDeltaY, 2));
+  const degreeToRadian = degrees_to_radians(degree);
 
-  console.log('Using degree => ', degree);
-  console.log('Angle radian => ', angleRadian);
+  const newObjX = r * Math.sin(theta + degreeToRadian);
+  const newObjY = r * Math.cos(theta + degreeToRadian);
 
-  let newObjX =
-    objDeltaX * Math.cos(angleRadian) - objDeltaY * Math.sin(angleRadian);
-  let newObjY =
-    objDeltaX * Math.sin(angleRadian) + objDeltaY * Math.cos(angleRadian);
-
-  console.log('old delta => ', { x: objDeltaX, z: -objDeltaY });
-  console.log('new delta => ', { x: newObjX, z: -newObjY });
-
-  return { x: newObjX, z: -newObjY };
-  //}
-
-  //return { x: objDeltaX, z: -objDeltaY };
+  return { x: -newObjX, z: -newObjY };
 };
 
 export default transformGpsToAR;
-
-/*
-    useEffect(() => {
-      
-        Window: 63.410601, 10.413305
-        Point A: 63.410603, 10.41338
-        Point B: 63.410695, 10.413364
-      
-      setPosition(transformGpsToAR(63.410603, 10.41338, 63.410601, 10.413305));
-    }, []);
-    */
