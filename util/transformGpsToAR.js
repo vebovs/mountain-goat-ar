@@ -27,7 +27,7 @@ const transformGpsToAR = (latObj, longObj, latMobile, longMobile, degree) => {
   const newObjX = r * Math.sin(theta + degreeToRadian);
   const newObjY = r * Math.cos(theta + degreeToRadian);
 
-  return { x: -newObjX, z: -newObjY };
+  return [-newObjX, -1, -newObjY];
 };
 
 export default transformGpsToAR;

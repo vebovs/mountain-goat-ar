@@ -9,7 +9,7 @@ import Geolocation from 'react-native-geolocation-service';
 import {
   ViroARScene,
   ViroTrackingStateConstants,
-  ViroBox,
+  ViroPolyline,
 } from '@viro-community/react-viro';
 import CompassHeading from 'react-native-compass-heading';
 
@@ -19,6 +19,7 @@ const PathSceneAR = (props) => {
   const [userLocation, setUserLocation] = useState();
   const [positions, setPositions] = useState([]);
   const [compassHeading, setCompassHeading] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   const hasLocationPermission = async () => {
     if (Platform.OS === 'android' && Platform.Version < 23) {
@@ -66,7 +67,7 @@ const PathSceneAR = (props) => {
     Geolocation.getCurrentPosition(
       (position) => {
         setUserLocation(position);
-        console.log(position);
+        //console.log(position);
       },
       (error) => {
         Alert.alert(`Code ${error.code}`, error.message);
@@ -105,6 +106,7 @@ const PathSceneAR = (props) => {
           ),
         ]),
       );
+      setIsLoading(false);
     } else if (state === ViroTrackingStateConstants.TRACKING_NONE) {
       // Handle loss of tracking
     }
@@ -139,16 +141,9 @@ const PathSceneAR = (props) => {
 
   return (
     <ViroARScene onTrackingUpdated={onInitialized}>
-      {positions.map((pos) => (
-        <ViroBox
-          key={pos.x + ':' + pos.z}
-          height={1}
-          length={1}
-          width={1}
-          scale={[0.2, 0.2, 0.2]}
-          position={[pos.x, 0, pos.z]}
-        />
-      ))}
+      {!isLoading && (
+        <ViroPolyline position={[0, 0, 0]} points={positions} thickness={0.2} />
+      )}
     </ViroARScene>
   );
 };
