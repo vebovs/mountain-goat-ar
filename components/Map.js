@@ -48,17 +48,17 @@ const Map = ({ nodes, setNodes }) => {
         initialRegion={region}
         onPress={selectedPointHandler}
       >
-        {nodes.map((n) => (
-          <Fragment key={n.lat + n.lng}>
+        {nodes.map((n, index) => (
+          <Fragment key={index}>
             <Circle
-              key={n.lat + ':' + n.lng}
+              key={index + ':' + n.lat}
               center={{ latitude: n.lat, longitude: n.lng }}
               radius={6}
               fillColor="blue"
             />
             {n.nextNode && (
               <Polyline
-                key={n.lng + ':' + n.lat}
+                key={index + ':' + n.lng}
                 coordinates={[
                   { latitude: n.lat, longitude: n.lng },
                   { latitude: n.nextNode.lat, longitude: n.nextNode.lng },
