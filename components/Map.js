@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { StyleSheet } from 'react-native';
+import { View, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MapView, { Polyline, Circle } from 'react-native-maps';
 
@@ -42,23 +42,23 @@ const Map = ({ nodes, setNodes }) => {
   };
 
   return (
-    <>
+    <View style={styles.f1}>
       <MapView
-        style={styles.map}
+        style={styles.f1}
         initialRegion={region}
         onPress={selectedPointHandler}
       >
-        {nodes.map((n) => (
-          <Fragment key={n.lat + n.lng}>
+        {nodes.map((n, index) => (
+          <Fragment key={index}>
             <Circle
-              key={n.lat + ':' + n.lng}
+              key={index + ':' + n.lat}
               center={{ latitude: n.lat, longitude: n.lng }}
               radius={6}
               fillColor="blue"
             />
             {n.nextNode && (
               <Polyline
-                key={n.lng + ':' + n.lat}
+                key={index + ':' + n.lng}
                 coordinates={[
                   { latitude: n.lat, longitude: n.lng },
                   { latitude: n.nextNode.lat, longitude: n.nextNode.lng },
@@ -70,23 +70,31 @@ const Map = ({ nodes, setNodes }) => {
           </Fragment>
         ))}
       </MapView>
-      <Icon.Button
-        name="undo"
-        size={40}
-        style={styles.iconButton}
-        onPress={undoNode}
-        disabled={nodes.length > 0 ? false : true}
-      />
-    </>
+      <View style={styles.overlay}>
+        <Icon.Button
+          name="undo"
+          size={30}
+          style={styles.iconButton}
+          onPress={undoNode}
+          disabled={nodes.length > 0 ? false : true}
+        />
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  map: {
+  f1: {
     flex: 1,
   },
   iconButton: {
     justifyContent: 'center',
+  },
+  overlay: {
+    position: 'absolute',
+    top: '3%',
+    right: '5%',
+    alignSelf: 'flex-end',
   },
 });
 
