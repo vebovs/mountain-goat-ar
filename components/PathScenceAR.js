@@ -10,6 +10,7 @@ import {
   ViroARScene,
   ViroTrackingStateConstants,
   ViroPolyline,
+  ViroSpinner,
 } from '@viro-community/react-viro';
 import CompassHeading from 'react-native-compass-heading';
 
@@ -141,7 +142,12 @@ const PathSceneAR = (props) => {
     }
   }, [userLocation]);
 
-  if (!userLocation || !compassHeading || !points) return null;
+  if (isLoading)
+    return (
+      <ViroARScene>
+        <ViroSpinner type="light" position={[0, 0, -2]} />
+      </ViroARScene>
+    );
 
   return (
     <ViroARScene onTrackingUpdated={onInitialized}>
