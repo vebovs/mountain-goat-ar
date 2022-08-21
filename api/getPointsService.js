@@ -1,7 +1,7 @@
 import { REACT_APP_GOOGLE_API_KEY } from '@env';
 import transformGpsToAR from '../util/transformGpsToAR';
 
-const getElevation = async (nodes, userLocation, compassHeading) => {
+const getPoints = async (nodes, userLocation, compassHeading) => {
   const promises = nodes.map(async (node) => {
     const response = await fetch(
       `https://maps.googleapis.com/maps/api/elevation/json?locations=${node.lat}%2C${node.lng}&key=${REACT_APP_GOOGLE_API_KEY}`,
@@ -41,4 +41,4 @@ const getElevation = async (nodes, userLocation, compassHeading) => {
   return points;
 };
 
-export default getElevation;
+export default getPoints;
