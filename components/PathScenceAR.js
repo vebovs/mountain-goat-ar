@@ -9,16 +9,17 @@ import Geolocation from 'react-native-geolocation-service';
 import {
   ViroARScene,
   ViroTrackingStateConstants,
-  ViroBox,
+  ViroPolyline,
 } from '@viro-community/react-viro';
 import CompassHeading from 'react-native-compass-heading';
 
-import transformGpsToAR from '../util/transformGpsToAR';
+import getPoints from '../api/getPointsService';
 
 const PathSceneAR = (props) => {
   const [userLocation, setUserLocation] = useState();
-  const [positions, setPositions] = useState([]);
+  const [points, setPoints] = useState([]);
   const [compassHeading, setCompassHeading] = useState(0);
+  const [isLoading, setIsLoading] = useState(true);
 
   const hasLocationPermission = async () => {
     if (Platform.OS === 'android' && Platform.Version < 23) {
@@ -89,26 +90,14 @@ const PathSceneAR = (props) => {
     );
   };
 
-  function onInitialized(state, reason) {
+  const onInitialized = (state, reason) => {
     console.log('guncelleme', state, reason);
-    setPositions([]);
     if (state === ViroTrackingStateConstants.TRACKING_NORMAL) {
-      props.sceneNavigator.viroAppProps.nodes.map((point) =>
-        setPositions((prevPositions) => [
-          ...prevPositions,
-          transformGpsToAR(
-            point.lat,
-            point.lng,
-            userLocation.coords.latitude,
-            userLocation.coords.longitude,
-            compassHeading,
-          ),
-        ]),
-      );
+      // Handle tracking
     } else if (state === ViroTrackingStateConstants.TRACKING_NONE) {
       // Handle loss of tracking
     }
-  }
+  };
 
   useEffect(() => {
     const controller = new AbortController();
@@ -135,20 +124,30 @@ const PathSceneAR = (props) => {
     };
   }, []);
 
-  if (!userLocation || !compassHeading) return null;
+  useEffect(() => {
+    if (userLocation) {
+      (async () => {
+        const points = await getPoints(
+          props.sceneNavigator.viroAppProps.nodes,
+          userLocation,
+          compassHeading,
+        );
+        setPoints(points);
+        setIsLoading(false);
+      })().catch((error) => {
+        console.log(error.message);
+        Alert.alert(error.message);
+      });
+    }
+  }, [userLocation]);
+
+  if (!userLocation || !compassHeading || !points) return null;
 
   return (
     <ViroARScene onTrackingUpdated={onInitialized}>
-      {positions.map((pos) => (
-        <ViroBox
-          key={pos.x + ':' + pos.z}
-          height={1}
-          length={1}
-          width={1}
-          scale={[0.2, 0.2, 0.2]}
-          position={[pos.x, 0, pos.z]}
-        />
-      ))}
+      {!isLoading && (
+        <ViroPolyline position={[0, 0, 0]} points={points} thickness={0.2} />
+      )}
     </ViroARScene>
   );
 };

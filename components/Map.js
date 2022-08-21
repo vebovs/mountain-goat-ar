@@ -5,7 +5,7 @@ import MapView, { Polyline, Circle } from 'react-native-maps';
 
 import Node from '../util/Node';
 
-function Map({ nodes, setNodes }) {
+const Map = ({ nodes, setNodes }) => {
   const region = {
     latitude: 63.410601,
     longitude: 10.413305,
@@ -79,7 +79,7 @@ function Map({ nodes, setNodes }) {
       />
     </>
   );
-}
+};
 
 const styles = StyleSheet.create({
   map: {
