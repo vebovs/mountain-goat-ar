@@ -11,6 +11,7 @@ import {
   ViroTrackingStateConstants,
   ViroPolyline,
   ViroSpinner,
+  ViroText,
 } from '@viro-community/react-viro';
 import CompassHeading from 'react-native-compass-heading';
 
@@ -151,7 +152,9 @@ const PathSceneAR = (props) => {
 
   return (
     <ViroARScene onTrackingUpdated={onInitialized}>
-      {!isLoading && (
+      {points.length === 0 ? (
+        <ViroText text="No points selected" position={[0, -0.25, -2]} />
+      ) : (
         <ViroPolyline position={[0, 0, 0]} points={points} thickness={0.2} />
       )}
     </ViroARScene>
