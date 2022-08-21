@@ -13,7 +13,15 @@ const degrees_to_radians = (degrees) => {
   return degrees * (Math.PI / 180);
 };
 
-const transformGpsToAR = (latObj, longObj, latMobile, longMobile, degree) => {
+const transformGpsToAR = (
+  latObj,
+  longObj,
+  latMobile,
+  longMobile,
+  elevationPoint,
+  elevationMobile,
+  degree,
+) => {
   const deviceObjPoint = latLongToMerc(latObj, longObj);
   const mobilePoint = latLongToMerc(latMobile, longMobile);
 
@@ -27,7 +35,9 @@ const transformGpsToAR = (latObj, longObj, latMobile, longMobile, degree) => {
   const newObjX = r * Math.sin(theta + degreeToRadian);
   const newObjY = r * Math.cos(theta + degreeToRadian);
 
-  return [-newObjX, -1, -newObjY];
+  const elevationDelta = elevationPoint - elevationMobile;
+
+  return [-newObjX, elevationDelta, -newObjY];
 };
 
 export default transformGpsToAR;

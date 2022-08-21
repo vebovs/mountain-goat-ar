@@ -13,7 +13,7 @@ import {
 } from '@viro-community/react-viro';
 import CompassHeading from 'react-native-compass-heading';
 
-import transformGpsToAR from '../util/transformGpsToAR';
+import getElevation from '../api/getElevationService';
 
 const PathSceneAR = (props) => {
   const [userLocation, setUserLocation] = useState();
@@ -67,7 +67,7 @@ const PathSceneAR = (props) => {
     Geolocation.getCurrentPosition(
       (position) => {
         setUserLocation(position);
-        //console.log(position);
+        console.log(position);
       },
       (error) => {
         Alert.alert(`Code ${error.code}`, error.message);
@@ -92,21 +92,8 @@ const PathSceneAR = (props) => {
 
   function onInitialized(state, reason) {
     console.log('guncelleme', state, reason);
-    setPositions([]);
     if (state === ViroTrackingStateConstants.TRACKING_NORMAL) {
-      props.sceneNavigator.viroAppProps.nodes.map((point) =>
-        setPositions((prevPositions) => [
-          ...prevPositions,
-          transformGpsToAR(
-            point.lat,
-            point.lng,
-            userLocation.coords.latitude,
-            userLocation.coords.longitude,
-            compassHeading,
-          ),
-        ]),
-      );
-      setIsLoading(false);
+      // Handle tracking
     } else if (state === ViroTrackingStateConstants.TRACKING_NONE) {
       // Handle loss of tracking
     }
@@ -137,7 +124,21 @@ const PathSceneAR = (props) => {
     };
   }, []);
 
-  if (!userLocation || !compassHeading) return null;
+  useEffect(() => {
+    if (userLocation) {
+      (async () => {
+        const points = await getElevation(
+          props.sceneNavigator.viroAppProps.nodes,
+          userLocation,
+          compassHeading,
+        );
+        setPositions(points);
+        setIsLoading(false);
+      })().catch((error) => console.log(error));
+    }
+  }, [userLocation]);
+
+  if (!userLocation || !compassHeading || !positions) return null;
 
   return (
     <ViroARScene onTrackingUpdated={onInitialized}>
