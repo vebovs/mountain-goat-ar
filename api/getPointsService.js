@@ -16,9 +16,6 @@ const getPoints = async (nodes, userLocation, compassHeading) => {
   });
   const positions = await Promise.all(promises);
 
-  console.log('userlocation.coords');
-  console.log(userLocation.coords);
-
   const response = await fetch(
     `https://maps.googleapis.com/maps/api/elevation/json?locations=${userLocation.coords.latitude}%2C${userLocation.coords.longitude}&key=${REACT_APP_GOOGLE_API_KEY}`,
   );

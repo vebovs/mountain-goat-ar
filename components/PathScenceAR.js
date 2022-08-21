@@ -134,7 +134,10 @@ const PathSceneAR = (props) => {
         );
         setPoints(points);
         setIsLoading(false);
-      })().catch((error) => console.log(error));
+      })().catch((error) => {
+        console.log(error.message);
+        Alert.alert(error.message);
+      });
     }
   }, [userLocation]);
 
